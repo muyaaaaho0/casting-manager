@@ -150,12 +150,12 @@ main{max-width:1100px;margin:0 auto;padding:24px 20px;}
     <h2 id="mTitle">배우 추가</h2>
     <div class="frow"><label>이름 *</label>
       <div style="display:flex;gap:8px;">
-        <input type="text" id="e-name" placeholder="배우 이름" oninput="clearAutoPhoto()" />
-        <button type="button" onclick="searchPhoto()" class="btn btn-primary" style="white-space:nowrap;font-size:12px;padding:6px 12px;">🔍 사진</button>
+        <input type="text" id="e-name" placeholder="배우 이름" oninput="clearAutoPhoto()" onblur="autoFillWiki()" />
+        <button type="button" onclick="searchPhoto()" class="btn btn-primary" style="white-space:nowrap;font-size:12px;padding:6px 12px;">🖼 사진 검색</button>
       </div>
     </div>
     <div id="photoResults" style="display:none;margin-bottom:12px;">
-      <div style="font-size:11px;color:var(--muted);margin-bottom:6px;">사진 선택 (클릭)</div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:6px;">사진 선택 (클릭하면 적용돼요)</div>
       <div id="photoGrid" style="display:flex;gap:6px;flex-wrap:wrap;align-items:flex-start;"></div>
     </div>
     <div class="fgrid">
@@ -304,63 +304,48 @@ function clearAutoPhoto(){
   document.getElementById('photoGrid').innerHTML='';
 }
 
+// 이름 입력 후 자동으로 위키피디아 정보만 채움 (사진 제외)
+function autoFillWiki(){
+  const name=document.getElementById('e-name').value.trim();
+  if(!name||editId)return; // 수정 모드일 때는 자동입력 안 함
+  fetch(`https://ko.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(name)}`)
+    .then(r=>r.json())
+    .then(data=>{
+      if(data.type==='disambiguation'||!data.extract)return;
+      const extract=data.extract||'';
+      let filled=[];
+      const birthMatch=extract.match(/(\d{4})년\s*\d+월\s*\d+일/);
+      if(birthMatch&&!document.getElementById('e-birth').value){document.getElementById('e-birth').value=birthMatch[1];filled.push('출생년도');}
+      const heightMatch=extract.match(/(\d{3})\s*cm/);
+      if(heightMatch&&!document.getElementById('e-height').value){document.getElementById('e-height').value=heightMatch[1];filled.push('키');}
+      const agencyMatch=extract.match(/([가-힣A-Za-z]+(?:엔터테인먼트|엔터|매니지먼트|컴퍼니|크리에이티브|스튜디오|프로덕션|기획))/);
+      if(agencyMatch&&!document.getElementById('e-agency').value){document.getElementById('e-agency').value=agencyMatch[1].trim();filled.push('소속사');}
+      const workMatches=extract.match(/《([^》]+)》/g);
+      if(workMatches&&!document.getElementById('e-works').value){
+        const works=workMatches.map(w=>w.replace(/《|》/g,'')).slice(0,8).join(', ');
+        document.getElementById('e-works').value=works;filled.push('출연작');
+      }
+      if(filled.length>0)showToast('✅ 위키피디아: '+filled.join(', ')+' 자동입력!');
+    })
+    .catch(()=>{});
+}
+
+// 사진만 검색해서 보여줌
 function searchPhoto(){
   const name=document.getElementById('e-name').value.trim();
   if(!name){showToast('이름을 먼저 입력해주세요');return;}
   const grid=document.getElementById('photoGrid');
   const results=document.getElementById('photoResults');
-  grid.innerHTML='<div style="font-size:12px;color:var(--muted);">위키피디아 검색 중...</div>';
+  grid.innerHTML='<div style="font-size:12px;color:var(--muted);">사진 검색 중...</div>';
   results.style.display='block';
-
   fetch(`https://ko.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(name)}`)
     .then(r=>r.json())
     .then(data=>{
       grid.innerHTML='';
-
-      // 위키피디아 본문에서 정보 추출
-      const extract = data.extract || '';
-
-      // 출생년도 추출
-      const birthMatch = extract.match(/(\d{4})년\s*\d+월\s*\d+일/);
-      if(birthMatch && !document.getElementById('e-birth').value){
-        document.getElementById('e-birth').value = birthMatch[1];
-      }
-
-      // 키 추출
-      const heightMatch = extract.match(/(\d{3})\s*cm/);
-      if(heightMatch && !document.getElementById('e-height').value){
-        document.getElementById('e-height').value = heightMatch[1];
-      }
-
-      // 소속사 추출 (여러 패턴)
-      const agencyMatch = extract.match(/소속사[^
-]*?([가-힣A-Za-z\s]+(?:엔터테인먼트|엔터|기획사|소속|매니지먼트|컴퍼니|크리에이티브|스튜디오|에이전시|프로덕션)[가-힣A-Za-z\s]*)/);
-      if(agencyMatch && !document.getElementById('e-agency').value){
-        document.getElementById('e-agency').value = agencyMatch[1].trim();
-      }
-
-      // 출연작 추출 힌트 표시
-      if(extract && !document.getElementById('e-works').value){
-        // 드라마/영화 제목 패턴 추출
-        const workMatches = extract.match(/《([^》]+)》/g);
-        if(workMatches){
-          const works = workMatches.map(w=>w.replace(/《|》/g,'')).slice(0,8).join(', ');
-          document.getElementById('e-works').value = works;
-        }
-      }
-
-      // 사진 표시
       const imgs=[];
       if(data.thumbnail&&data.thumbnail.source)imgs.push(data.thumbnail.source);
       if(data.originalimage&&data.originalimage.source)imgs.push(data.originalimage.source);
-
       if(imgs.length>0){
-        // 정보 추출 알림
-        const infoDiv = document.createElement('div');
-        infoDiv.style.cssText='width:100%;margin-bottom:8px;font-size:12px;color:var(--green);';
-        infoDiv.textContent='✅ 위키피디아에서 정보를 가져왔어요! 확인 후 수정해주세요.';
-        grid.appendChild(infoDiv);
-
         imgs.forEach(url=>{
           const img=document.createElement('img');
           img.src=url;
@@ -385,13 +370,16 @@ function searchPhoto(){
           img.onerror=function(){this.remove();};
           grid.appendChild(img);
         });
-        const link=document.createElement('div');
-        link.style.cssText='width:100%;margin-top:8px;';
-        link.innerHTML=`<a href="https://www.google.com/search?q=${encodeURIComponent(name+' 배우')}&tbm=isch" target="_blank" style="font-size:12px;color:var(--accent);">🔍 구글에서 더 찾기 →</a>`;
-        grid.appendChild(link);
       } else {
         showGoogleSearch(name,grid);
       }
+      // 파일 선택 & Ctrl+V 안내 항상 표시
+      const extra=document.createElement('div');
+      extra.style.cssText='width:100%;margin-top:10px;display:flex;flex-direction:column;gap:6px;';
+      extra.innerHTML=`
+        <button onclick="document.getElementById('fileInput').click()" class="btn btn-outline" style="font-size:12px;padding:5px 12px;width:fit-content;">📁 파일 직접 선택</button>
+        <div style="font-size:11px;color:var(--muted);">또는 사진 복사 후 이 페이지에서 Ctrl+V</div>`;
+      grid.appendChild(extra);
     })
     .catch(()=>showGoogleSearch(name,grid));
 }
