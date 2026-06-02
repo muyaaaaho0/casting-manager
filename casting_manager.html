@@ -23,18 +23,25 @@ main{max-width:1100px;margin:0 auto;padding:24px 20px;}
 .stat{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 16px;}
 .stat .n{font-size:26px;font-weight:700;line-height:1;margin-bottom:4px;}
 .stat .l{font-size:12px;color:var(--muted);}
+
+/* 업로드존 */
 .upload-zone{border:2px dashed var(--border);border-radius:12px;padding:24px;text-align:center;margin-bottom:24px;background:var(--surface);transition:all 0.15s;}
 .upload-zone.drag{border-color:var(--accent);background:var(--accent-light);}
 .upload-zone .icon{font-size:30px;margin-bottom:8px;}
 .upload-zone p{font-size:14px;font-weight:500;color:var(--text);margin-bottom:12px;}
-.paste-box{display:inline-block;padding:8px 22px;border:2px dashed var(--accent);border-radius:8px;font-size:13px;color:var(--accent);background:var(--accent-light);min-width:200px;user-select:none;}
+.paste-box{display:inline-block;padding:8px 22px;border:2px dashed var(--accent);border-radius:8px;font-size:13px;color:var(--accent);background:var(--accent-light);cursor:text;outline:none;min-width:200px;user-select:none;}
+.paste-box:focus{box-shadow:0 0 0 3px rgba(45,90,142,0.2);}
 .paste-box.ok{border-color:var(--green);color:var(--green);background:var(--green-light);}
 .paste-box.err{border-color:var(--red);color:var(--red);background:var(--red-light);}
 .upload-hint{font-size:11px;color:var(--muted);margin-top:8px;}
 .or-divider{margin:0 12px;color:var(--muted);font-size:12px;}
+
+/* 처리중 */
 .processing{background:var(--accent-light);border:1px solid #c0d8f0;border-radius:10px;padding:14px 18px;margin-bottom:16px;display:none;align-items:center;gap:12px;font-size:13px;color:var(--accent);}
 .spin{width:18px;height:18px;border:2px solid #a0c0e0;border-top-color:var(--accent);border-radius:50%;animation:spin 0.7s linear infinite;flex-shrink:0;}
 @keyframes spin{to{transform:rotate(360deg);}}
+
+/* 툴바 */
 .toolbar{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;align-items:center;}
 .chip{padding:6px 14px;border:1px solid var(--border);border-radius:20px;background:var(--surface);font-size:13px;color:var(--muted);cursor:pointer;font-family:'Noto Sans KR',sans-serif;}
 .chip.on{background:var(--accent);color:white;border-color:var(--accent);}
@@ -42,6 +49,8 @@ main{max-width:1100px;margin:0 auto;padding:24px 20px;}
 .search-input{padding:6px 12px;border:1px solid var(--border);border-radius:20px;background:var(--surface);font-size:13px;font-family:'Noto Sans KR',sans-serif;outline:none;width:140px;}
 .search-input:focus{border-color:var(--accent);}
 .spacer{flex:1;}
+
+/* 카드 */
 .actor-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;}
 .actor-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;}
 .card-top{display:flex;}
@@ -70,12 +79,16 @@ main{max-width:1100px;margin:0 auto;padding:24px 20px;}
 .cbtn{font-size:11px;padding:4px 10px;border:1px solid var(--border);border-radius:6px;background:transparent;color:var(--muted);cursor:pointer;font-family:'Noto Sans KR',sans-serif;}
 .cbtn:hover{background:var(--bg);}
 .cbtn.del:hover{background:var(--red-light);color:var(--red);}
+
+/* 버튼 */
 .btn{padding:8px 16px;border-radius:8px;font-size:13px;cursor:pointer;font-family:'Noto Sans KR',sans-serif;border:none;font-weight:500;}
 .btn-primary{background:var(--accent);color:white;}
 .btn-primary:hover{background:#1e4a7a;}
 .btn-green{background:#03c75a;color:white;}
 .btn-green:hover{background:#02a84a;}
 .btn-outline{background:transparent;border:1px solid var(--border);color:var(--text);}
+
+/* 모달 */
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:200;align-items:flex-start;justify-content:center;padding-top:40px;overflow-y:auto;}
 .modal-overlay.open{display:flex;}
 .modal{background:var(--surface);border-radius:12px;padding:24px;width:90%;max-width:480px;margin-bottom:40px;}
@@ -88,6 +101,7 @@ main{max-width:1100px;margin:0 auto;padding:24px 20px;}
 .fgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;}
 .modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:20px;}
 .photo-preview{width:80px;height:80px;border-radius:8px;object-fit:cover;object-position:top;border:1px solid var(--border);margin-top:8px;display:block;}
+
 .empty{text-align:center;padding:48px 20px;color:var(--muted);grid-column:1/-1;}
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1a1a1a;color:white;padding:10px 20px;border-radius:8px;font-size:13px;opacity:0;transition:opacity 0.2s;pointer-events:none;z-index:300;white-space:nowrap;}
 .toast.show{opacity:1;}
@@ -95,6 +109,7 @@ main{max-width:1100px;margin:0 auto;padding:24px 20px;}
 </style>
 </head>
 <body>
+
 <header>
   <div class="logo">🎬 <span>캐스팅</span>매니저</div>
   <div class="header-actions">
@@ -102,6 +117,7 @@ main{max-width:1100px;margin:0 auto;padding:24px 20px;}
     <button class="btn btn-primary" onclick="openAdd()">+ 배우 추가</button>
   </div>
 </header>
+
 <div id="apiBanner">
   ⚙️ Gemini API 키 입력 →
   <input type="password" id="apiKeyInput" placeholder="API 키 붙여넣기..." />
@@ -111,6 +127,7 @@ main{max-width:1100px;margin:0 auto;padding:24px 20px;}
   ✅ Gemini API 연결됨 &nbsp;
   <button onclick="resetApiKey()">🔑 키 변경</button>
 </div>
+
 <main>
   <div class="stats">
     <div class="stat"><div class="n" id="s-total">0</div><div class="l">전체 배우</div></div>
@@ -118,6 +135,7 @@ main{max-width:1100px;margin:0 auto;padding:24px 20px;}
     <div class="stat"><div class="n" id="s-review" style="color:var(--yellow)">0</div><div class="l">검토중</div></div>
     <div class="stat"><div class="n" id="s-wait" style="color:var(--accent)">0</div><div class="l">연락대기</div></div>
   </div>
+
   <div class="upload-zone" id="uploadZone"
     ondragover="event.preventDefault();this.classList.add('drag')"
     ondragleave="this.classList.remove('drag')"
@@ -127,26 +145,30 @@ main{max-width:1100px;margin:0 auto;padding:24px 20px;}
     <div style="display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:8px;">
       <button onclick="document.getElementById('fileInput').click()" class="btn btn-primary" style="font-size:13px;padding:7px 18px;">📁 파일 선택</button>
       <span class="or-divider">또는</span>
-      <div id="pasteBox" class="paste-box">⌨️ 캡처 후 아무데서나 Ctrl+V</div>
+      <div id="pasteBox" class="paste-box" style="cursor:default;">
+        ⌨️ 캡처 후 아무데서나 Ctrl+V
+      </div>
     </div>
-    <div class="upload-hint">윈도우+Shift+S 캡처 → 이 페이지에서 Ctrl+V</div>
+    <div class="upload-hint">윈도우+Shift+S 캡처 → 이 페이지에서 Ctrl+V (클릭 불필요)</div>
   </div>
   <input type="file" id="fileInput" accept="image/*" onchange="handleFileInput(event)" />
+
   <div class="processing" id="processingBox">
     <div class="spin"></div>
     <span>Gemini AI가 프로필 이미지를 분석하고 있어요...</span>
   </div>
+
   <div class="toolbar">
     <button class="chip on" id="g-all" onclick="setG('')">전체</button>
     <button class="chip" id="g-m" onclick="setG('남')">👨 남자</button>
     <button class="chip" id="g-f" onclick="setG('여')">👩 여자</button>
     <select class="fsel" id="f-age" onchange="render()">
-      <option value="">전체 나이대</option>
-      <option value="10">10대</option>
-      <option value="20">20대</option>
-      <option value="30">30대</option>
-      <option value="40">40대</option>
-      <option value="50">50대+</option>
+      <option value="">전체 년생</option>
+      <option value="2000">2000년대생 (25세↓)</option>
+      <option value="1990">90년대생 (26~35세)</option>
+      <option value="1980">80년대생 (36~45세)</option>
+      <option value="1970">70년대생 (46~55세)</option>
+      <option value="1960">60년대생 (56세↑)</option>
     </select>
     <select class="fsel" id="f-status" onchange="render()">
       <option value="">전체 상태</option>
@@ -158,12 +180,24 @@ main{max-width:1100px;margin:0 auto;padding:24px 20px;}
     <div class="spacer"></div>
     <input type="text" class="search-input" id="f-search" placeholder="🔍 이름 검색..." oninput="render()" />
   </div>
+
   <div class="actor-grid" id="actorGrid"></div>
 </main>
+
+<!-- 모달 -->
 <div class="modal-overlay" id="modal">
   <div class="modal">
     <h2 id="mTitle">배우 추가</h2>
-    <div class="frow"><label>이름 *</label><input type="text" id="e-name" placeholder="배우 이름" /></div>
+    <div class="frow"><label>이름 *</label>
+      <div style="display:flex;gap:8px;">
+        <input type="text" id="e-name" placeholder="배우 이름" oninput="clearAutoPhoto()" />
+        <button type="button" onclick="searchPhoto()" class="btn btn-primary" style="white-space:nowrap;font-size:12px;padding:6px 12px;">🔍 사진 검색</button>
+      </div>
+    </div>
+    <div id="photoResults" style="display:none;margin-bottom:12px;">
+      <div style="font-size:11px;color:var(--muted);margin-bottom:6px;">사진 선택 (클릭)</div>
+      <div id="photoGrid" style="display:flex;gap:6px;flex-wrap:wrap;"></div>
+    </div>
     <div class="fgrid">
       <div class="frow" style="margin:0"><label>성별</label>
         <select id="e-gender"><option value="여">여자</option><option value="남">남자</option></select>
@@ -193,32 +227,82 @@ main{max-width:1100px;margin:0 auto;padding:24px 20px;}
     </div>
   </div>
 </div>
+
 <div class="toast" id="toast"></div>
+
 <script>
 const AV_COLORS=['#2d5a8e','#2d7a4f','#8e2d5a','#7a5a2d','#5a2d8e','#2d7a7a'];
-let actors=[],nextId=1,editId=null,pendingImg=null,gFilter='';
+let actors=[], nextId=1, editId=null, pendingImg=null, gFilter='';
 let apiKey=localStorage.getItem('gemini_api_key')||'';
+
 function init(){
   const saved=localStorage.getItem('casting_actors');
   if(saved){actors=JSON.parse(saved);nextId=actors.length?Math.max(...actors.map(a=>a.id))+1:1;}
-  else{actors=[{id:1,name:'김태리',gender:'여',birth:1990,height:168,agency:'블러썸 엔터테인먼트',works:'미스터 션샤인, 지리산, 승리호',role:'주인공 박수연',status:'확정',priority:'높음',tags:['드라마','액션'],notes:'',img:null},{id:2,name:'이병헌',gender:'남',birth:1970,height:177,agency:'BH 엔터테인먼트',works:'킹덤, 비상선언, 달콤한 인생',role:'악당 오회장',status:'연락대기',priority:'높음',tags:['스릴러','카리스마'],notes:'스케줄 확인 필요',img:null},{id:3,name:'김현진',gender:'남',birth:1996,height:189,agency:'아메르 엔터테인먼트',works:'러브포비아, 아이돌마이, 알미운 사랑',role:'',status:'검토중',priority:'중간',tags:['멜로','청춘'],notes:'',img:null}];nextId=4;}
-  updateApiBanner();render();
+  else{
+    actors=[
+      {id:1,name:'김태리',gender:'여',birth:1990,height:168,agency:'블러썸 엔터테인먼트',works:'미스터 션샤인, 지리산, 승리호',role:'주인공 박수연',status:'확정',priority:'높음',tags:['드라마','액션'],notes:'',img:null},
+      {id:2,name:'이병헌',gender:'남',birth:1970,height:177,agency:'BH 엔터테인먼트',works:'킹덤, 비상선언, 달콤한 인생',role:'악당 오회장',status:'연락대기',priority:'높음',tags:['스릴러','카리스마'],notes:'스케줄 확인 필요',img:null},
+      {id:3,name:'김현진',gender:'남',birth:1996,height:189,agency:'아메르 엔터테인먼트',works:'러브포비아, 아이돌마이, 알미운 사랑',role:'',status:'검토중',priority:'중간',tags:['멜로','청춘'],notes:'',img:null},
+    ];
+    nextId=4;
+  }
+  updateApiBanner();
+  render();
 }
+
 function updateApiBanner(){
-  if(apiKey){document.getElementById('apiBanner').style.display='none';document.getElementById('apiOkBanner').style.display='flex';}
-  else{document.getElementById('apiBanner').style.display='flex';document.getElementById('apiOkBanner').style.display='none';}
+  if(apiKey){
+    document.getElementById('apiBanner').style.display='none';
+    document.getElementById('apiOkBanner').style.display='flex';
+  } else {
+    document.getElementById('apiBanner').style.display='flex';
+    document.getElementById('apiOkBanner').style.display='none';
+  }
 }
-function saveApiKey(){const k=document.getElementById('apiKeyInput').value.trim();if(!k)return;apiKey=k;localStorage.setItem('gemini_api_key',k);updateApiBanner();showToast('✓ API 키 저장됨!');}
-function resetApiKey(){apiKey='';localStorage.removeItem('gemini_api_key');document.getElementById('apiKeyInput').value='';updateApiBanner();}
+function saveApiKey(){
+  const k=document.getElementById('apiKeyInput').value.trim();
+  if(!k)return;
+  apiKey=k;
+  localStorage.setItem('gemini_api_key',k);
+  updateApiBanner();
+  showToast('✓ API 키 저장됨! 이제 Ctrl+V로 바로 분석돼요');
+}
+function resetApiKey(){
+  apiKey='';
+  localStorage.removeItem('gemini_api_key');
+  document.getElementById('apiKeyInput').value='';
+  updateApiBanner();
+}
+
 function save(){localStorage.setItem('casting_actors',JSON.stringify(actors));}
 function birthToAge(b){return b?new Date().getFullYear()-b:0;}
 function ageGroup(b){const a=birthToAge(b);if(a<20)return 10;if(a<30)return 20;if(a<40)return 30;if(a<50)return 40;return 50;}
-function setG(g){gFilter=g;['g-all','g-m','g-f'].forEach(id=>document.getElementById(id).classList.remove('on'));document.getElementById(g===''?'g-all':g==='남'?'g-m':'g-f').classList.add('on');render();}
+
+function setG(g){
+  gFilter=g;
+  ['g-all','g-m','g-f'].forEach(id=>document.getElementById(id).classList.remove('on'));
+  document.getElementById(g===''?'g-all':g==='남'?'g-m':'g-f').classList.add('on');
+  render();
+}
+
 function render(){
   const s=document.getElementById('f-search').value.toLowerCase();
   const ag=document.getElementById('f-age').value;
   const st=document.getElementById('f-status').value;
-  const list=actors.filter(a=>{if(gFilter&&a.gender!==gFilter)return false;if(ag&&a.birth&&ageGroup(a.birth)!=ag)return false;if(st&&a.status!==st)return false;if(s&&!a.name.toLowerCase().includes(s))return false;return true;});
+  const list=actors.filter(a=>{
+    if(gFilter&&a.gender!==gFilter)return false;
+    if(ag&&a.birth){
+      const decade=parseInt(ag);
+      if(decade===2000&&a.birth<2000)return false;
+      if(decade===1990&&(a.birth<1990||a.birth>=2000))return false;
+      if(decade===1980&&(a.birth<1980||a.birth>=1990))return false;
+      if(decade===1970&&(a.birth<1970||a.birth>=1980))return false;
+      if(decade===1960&&a.birth>=1970)return false;
+    } else if(ag&&!a.birth) return false;
+    if(st&&a.status!==st)return false;
+    if(s&&!a.name.toLowerCase().includes(s))return false;
+    return true;
+  });
   document.getElementById('s-total').textContent=actors.length;
   document.getElementById('s-confirm').textContent=actors.filter(a=>a.status==='확정').length;
   document.getElementById('s-review').textContent=actors.filter(a=>a.status==='검토중').length;
@@ -228,12 +312,57 @@ function render(){
   grid.innerHTML=list.map(a=>{
     const col=AV_COLORS[a.id%AV_COLORS.length];
     const age=a.birth?`${birthToAge(a.birth)}세 (${a.birth}년생)`:'';
-    const photo=a.img?`<img src="${a.img}" alt="${a.name}" />`:`<div style="width:100%;height:100%;background:${col};display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;">${a.name.slice(0,1)}</div>`;
-    return`<div class="actor-card"><div class="card-top"><div class="card-photo">${photo}</div><div class="card-info"><div class="card-name-row"><span class="card-name">${a.name}</span><span class="gbadge ${a.gender==='남'?'male':'female'}">${a.gender==='남'?'남자':'여자'}</span></div><table class="card-table">${age?`<tr><td>나이</td><td>${age}</td></tr>`:''}${a.height?`<tr><td>신체</td><td>${a.height}cm</td></tr>`:''}${a.agency?`<tr><td>소속사</td><td>${a.agency}</td></tr>`:''}${a.works?`<tr><td>출연작</td><td>${a.works}</td></tr>`:''}${a.role?`<tr><td>배역</td><td><strong>${a.role}</strong></td></tr>`:''}${a.tags.length?`<tr><td>태그</td><td>${a.tags.join(', ')}</td></tr>`:''}${a.notes?`<tr><td>메모</td><td style="color:var(--muted)">${a.notes}</td></tr>`:''}</table></div></div><div class="card-bottom"><div style="display:flex;gap:6px;align-items:center;"><span class="status-badge s-${a.status}">${a.status}</span><span class="priority-badge p-${a.priority}">${a.priority}</span></div><div class="card-btns"><button class="cbtn" onclick="openEdit(${a.id})">✏️ 수정</button><button class="cbtn del" onclick="del(${a.id})">🗑</button></div></div></div>`;
+    const photo=a.img
+      ?`<img src="${a.img}" alt="${a.name}" />`
+      :`<div style="width:100%;height:100%;background:${col};display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;">${a.name.slice(0,1)}</div>`;
+    return`<div class="actor-card">
+      <div class="card-top">
+        <div class="card-photo">${photo}</div>
+        <div class="card-info">
+          <div class="card-name-row">
+            <span class="card-name">${a.name}</span>
+            <span class="gbadge ${a.gender==='남'?'male':'female'}">${a.gender==='남'?'남자':'여자'}</span>
+          </div>
+          <table class="card-table">
+            ${age?`<tr><td>나이</td><td>${age}</td></tr>`:''}
+            ${a.height?`<tr><td>신체</td><td>${a.height}cm</td></tr>`:''}
+            ${a.agency?`<tr><td>소속사</td><td>${a.agency}</td></tr>`:''}
+            ${a.works?`<tr><td>출연작</td><td>${a.works}</td></tr>`:''}
+            ${a.role?`<tr><td>배역</td><td><strong>${a.role}</strong></td></tr>`:''}
+            ${a.tags.length?`<tr><td>태그</td><td>${a.tags.join(', ')}</td></tr>`:''}
+            ${a.notes?`<tr><td>메모</td><td style="color:var(--muted)">${a.notes}</td></tr>`:''}
+          </table>
+        </div>
+      </div>
+      <div class="card-bottom">
+        <div style="display:flex;gap:6px;align-items:center;">
+          <span class="status-badge s-${a.status}">${a.status}</span>
+          <span class="priority-badge p-${a.priority}">${a.priority}</span>
+        </div>
+        <div class="card-btns">
+          <button class="cbtn" onclick="openEdit(${a.id})">✏️ 수정</button>
+          <button class="cbtn del" onclick="del(${a.id})">🗑</button>
+        </div>
+      </div>
+    </div>`;
   }).join('');
 }
-function handleDrop(e){e.preventDefault();document.getElementById('uploadZone').classList.remove('drag');const file=e.dataTransfer.files[0];if(file&&file.type.startsWith('image/'))processImage(file);}
-function handleFileInput(e){const file=e.target.files[0];if(file)processImage(file);e.target.value='';}
+
+/* 이미지 처리 - 공통 */
+function handleDrop(e){
+  e.preventDefault();
+  document.getElementById('uploadZone').classList.remove('drag');
+  const file=e.dataTransfer.files[0];
+  if(file&&file.type.startsWith('image/'))processImage(file);
+}
+function handleFileInput(e){
+  const file=e.target.files[0];
+  if(file)processImage(file);
+  e.target.value='';
+}
+
+
+
 async function processImage(file){
   if(!apiKey){updateApiBanner();showToast('⚠️ API 키를 먼저 입력해주세요');return;}
   const reader=new FileReader();
@@ -242,21 +371,52 @@ async function processImage(file){
     const base64=imgData.split(',')[1];
     document.getElementById('processingBox').style.display='flex';
     try{
-      const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:`You are a data extraction assistant. Look at this Korean actor profile image and extract information. Return ONLY a valid JSON object. No explanation, no markdown, no backticks.\n{"name":"actor name in Korean","gender":"남 or 여","birth":year_or_null,"height":height_cm_or_null,"agency":"agency or null","works":"work1, work2 or null"}`},{inline_data:{mime_type:file.type,data:base64}}]}],generationConfig:{temperature:0,maxOutputTokens:300,responseMimeType:"application/json"}})});
+      const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({
+          contents:[{parts:[
+            {text:`You are a data extraction assistant. Look at this Korean actor profile image and extract information.
+Return ONLY a valid JSON object with these exact keys. No explanation, no markdown, no backticks. Just the raw JSON.
+{"name":"actor name in Korean","gender":"남 or 여","birth":year_number_or_null,"height":height_cm_number_or_null,"agency":"agency name or null","works":"drama1, drama2, drama3 or null"}`},
+            {inline_data:{mime_type:file.type,data:base64}}
+          ]}],
+          generationConfig:{temperature:0,maxOutputTokens:300,responseMimeType:"application/json"}
+        })
+      });
       const data=await res.json();
       document.getElementById('processingBox').style.display='none';
       let extracted={};
-      try{const raw=data.candidates[0].content.parts[0].text||'';const match=raw.replace(/```json/gi,'').replace(/```/g,'').trim().match(/\{[\s\S]*\}/);if(match)extracted=JSON.parse(match[0]);}catch(e){}
+      try{
+        const raw=data.candidates[0].content.parts[0].text||'';
+        console.log('Gemini raw:', raw);
+        const clean=raw.replace(/```json/gi,'').replace(/```/g,'').trim();
+        const match=clean.match(/\{[\s\S]*\}/);
+        if(match){
+          extracted=JSON.parse(match[0]);
+          console.log('추출 결과:', extracted);
+        }
+      }catch(e){
+        console.error('파싱 에러:',e);
+      }
       pendingImg=imgData;
-      showToast((extracted.name||extracted.agency)?'✅ 자동 추출 완료!':'⚠️ 추출 실패 — 직접 입력해주세요');
+      const hasData=extracted.name||extracted.agency||extracted.works;
+      showToast(hasData?'✅ 자동 추출 완료!':'⚠️ 추출 실패 — 직접 입력해주세요');
       openAdd(extracted);
-    }catch(err){document.getElementById('processingBox').style.display='none';showToast('❌ API 오류: '+err.message);pendingImg=imgData;openAdd({});}
+    }catch(err){
+      document.getElementById('processingBox').style.display='none';
+      console.error('API 에러:',err);
+      showToast('❌ API 오류: '+err.message);
+      pendingImg=imgData;
+      openAdd({});
+    }
   };
   reader.readAsDataURL(file);
 }
+
 function openAdd(prefill){
   editId=null;
-  document.getElementById('mTitle').textContent=(prefill&&Object.keys(prefill).length)?'AI가 추출한 정보 확인':'배우 추가';
+  document.getElementById('mTitle').textContent=prefill&&Object.keys(prefill).length?'AI가 추출한 정보 확인':'배우 추가';
   document.getElementById('e-name').value=prefill?.name||'';
   document.getElementById('e-gender').value=(prefill?.gender==='남')?'남':'여';
   document.getElementById('e-birth').value=prefill?.birth||'';
@@ -272,43 +432,130 @@ function openAdd(prefill){
   document.getElementById('modal').classList.add('open');
 }
 function openEdit(id){
-  const a=actors.find(x=>x.id===id);editId=id;pendingImg=a.img;
+  const a=actors.find(x=>x.id===id);
+  editId=id; pendingImg=a.img;
   document.getElementById('mTitle').textContent='배우 정보 수정';
-  document.getElementById('e-name').value=a.name;document.getElementById('e-gender').value=a.gender;document.getElementById('e-birth').value=a.birth||'';document.getElementById('e-height').value=a.height||'';document.getElementById('e-agency').value=a.agency;document.getElementById('e-works').value=a.works||'';document.getElementById('e-role').value=a.role;document.getElementById('e-status').value=a.status;document.getElementById('e-priority').value=a.priority;document.getElementById('e-tags').value=a.tags.join(', ');document.getElementById('e-notes').value=a.notes;
+  document.getElementById('e-name').value=a.name;
+  document.getElementById('e-gender').value=a.gender;
+  document.getElementById('e-birth').value=a.birth||'';
+  document.getElementById('e-height').value=a.height||'';
+  document.getElementById('e-agency').value=a.agency;
+  document.getElementById('e-works').value=a.works||'';
+  document.getElementById('e-role').value=a.role;
+  document.getElementById('e-status').value=a.status;
+  document.getElementById('e-priority').value=a.priority;
+  document.getElementById('e-tags').value=a.tags.join(', ');
+  document.getElementById('e-notes').value=a.notes;
   document.getElementById('imgPreviewWrap').innerHTML=a.img?`<img src="${a.img}" class="photo-preview" />`:'';
   document.getElementById('modal').classList.add('open');
 }
 function closeModal(){document.getElementById('modal').classList.remove('open');pendingImg=null;editId=null;}
 function saveActor(){
-  const name=document.getElementById('e-name').value.trim();if(!name){document.getElementById('e-name').focus();return;}
+  const name=document.getElementById('e-name').value.trim();
+  if(!name){document.getElementById('e-name').focus();return;}
   const d={name,gender:document.getElementById('e-gender').value,birth:parseInt(document.getElementById('e-birth').value)||null,height:parseInt(document.getElementById('e-height').value)||null,agency:document.getElementById('e-agency').value.trim(),works:document.getElementById('e-works').value.trim(),role:document.getElementById('e-role').value.trim(),status:document.getElementById('e-status').value,priority:document.getElementById('e-priority').value,tags:document.getElementById('e-tags').value.split(',').map(t=>t.trim()).filter(Boolean),notes:document.getElementById('e-notes').value.trim(),img:pendingImg};
-  if(editId){const i=actors.findIndex(a=>a.id===editId);actors[i]={...actors[i],...d};}else{actors.unshift({id:nextId++,...d});}
+  if(editId){const i=actors.findIndex(a=>a.id===editId);actors[i]={...actors[i],...d};}
+  else{actors.unshift({id:nextId++,...d});}
   save();closeModal();render();showToast('✓ 저장됐어요');
 }
 function del(id){if(!confirm('삭제할까요?'))return;actors=actors.filter(a=>a.id!==id);save();render();}
+
 function copyToSheets(){
   let rows=[];
   actors.forEach(a=>{
-    rows.push(['','출생년도',a.birth||'','신 체',a.height||'','현 황','']);
-    rows.push(['','','','','','','']);
-    rows.push(['','','','','','','']);
-    rows.push(['','','','','','','']);
-    rows.push(['','출연작품',a.works||'','','','','']);
-    rows.push(['','소 속 사',a.agency||'','','','','']);
-    rows.push([a.name,'','','','','','']);
-    rows.push(['','','','','','','']);
+    rows.push(['',        '출생년도', a.birth||'', '신 체', a.height||'', '현 황', '']);
+    rows.push(['',        '',         '',           '',      '',            '',      '']);
+    rows.push(['',        '',         '',           '',      '',            '',      '']);
+    rows.push(['',        '',         '',           '',      '',            '',      '']);
+    rows.push(['',        '출연작품', a.works||'',  '',      '',            '',      '']);
+    rows.push(['',        '소 속 사', a.agency||'', '',      '',            '',      '']);
+    rows.push([a.name,    '',         '',           '',      '',            '',      '']);
+    rows.push(['',        '',         '',           '',      '',            '',      '']);
   });
   const tsv=rows.map(r=>r.join('\t')).join('\n');
-  navigator.clipboard.writeText(tsv).then(()=>showToast('✓ 복사 완료! 구글 시트에서 Ctrl+V 하세요')).catch(()=>{const ta=document.createElement('textarea');ta.value=tsv;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);showToast('✓ 복사 완료! 구글 시트에서 Ctrl+V 하세요');});
+  navigator.clipboard.writeText(tsv).then(()=>showToast('✓ 복사 완료! 구글 시트에서 Ctrl+V 하세요')).catch(()=>{
+    const ta=document.createElement('textarea');ta.value=tsv;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);showToast('✓ 복사 완료! 구글 시트에서 Ctrl+V 하세요');
+  });
 }
+
+function clearAutoPhoto(){
+  document.getElementById('photoResults').style.display='none';
+  document.getElementById('photoGrid').innerHTML='';
+}
+
+function searchPhoto(){
+  const name = document.getElementById('e-name').value.trim();
+  if(!name){ showToast('이름을 먼저 입력해주세요'); return; }
+  const grid = document.getElementById('photoGrid');
+  const results = document.getElementById('photoResults');
+  grid.innerHTML = '<div style="font-size:12px;color:var(--muted);">검색 중...</div>';
+  results.style.display = 'block';
+  
+  // 구글 이미지 검색 URL로 직접 열기 방식 대신
+  // unavatar/wikipedia 등 무료 API 활용
+  const searches = [
+    `https://unavatar.io/twitter/${encodeURIComponent(name)}`,
+  ];
+  
+  // 실제로는 구글 커스텀 검색 API 필요하므로
+  // 대신 위키피디아 썸네일 API 사용
+  fetch(`https://ko.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(name)}`)
+    .then(r => r.json())
+    .then(data => {
+      grid.innerHTML = '';
+      const imgs = [];
+      if(data.thumbnail && data.thumbnail.source) imgs.push(data.thumbnail.source);
+      if(data.originalimage && data.originalimage.source) imgs.push(data.originalimage.source);
+      
+      if(imgs.length === 0){
+        grid.innerHTML = `<div style="font-size:12px;color:var(--muted);">사진을 찾지 못했어요.<br>직접 파일을 선택해주세요.</div>
+        <button onclick="document.getElementById('fileInput').click()" class="btn btn-primary" style="font-size:12px;padding:5px 12px;margin-top:6px;">📁 파일 선택</button>`;
+        return;
+      }
+      imgs.forEach(url => {
+        const img = document.createElement('img');
+        img.src = url;
+        img.style.cssText = 'width:70px;height:90px;object-fit:cover;object-position:top;border-radius:6px;cursor:pointer;border:2px solid transparent;';
+        img.onclick = function(){
+          document.querySelectorAll('#photoGrid img').forEach(i => i.style.borderColor='transparent');
+          this.style.borderColor = 'var(--accent)';
+          pendingImg = url;
+          document.getElementById('imgPreviewWrap').innerHTML = `<img src="${url}" class="photo-preview" />`;
+          showToast('✓ 사진 선택됨!');
+        };
+        img.onerror = function(){ this.parentNode && this.parentNode.removeChild(this); };
+        grid.appendChild(img);
+      });
+    })
+    .catch(()=>{
+      grid.innerHTML = `<div style="font-size:12px;color:var(--muted);">사진을 찾지 못했어요.</div>
+      <button onclick="document.getElementById('fileInput').click()" class="btn btn-primary" style="font-size:12px;padding:5px 12px;margin-top:6px;">📁 파일 선택</button>`;
+    });
+}
+
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
-document.addEventListener('paste',function(e){
-  if(document.getElementById('modal').classList.contains('open'))return;
-  const cd=e.clipboardData||e.originalEvent.clipboardData;if(!cd)return;
-  let imgFile=null;
-  for(let i=0;i<cd.items.length;i++){if(cd.items[i].type.startsWith('image/')){imgFile=cd.items[i].getAsFile();break;}}
-  if(imgFile){e.preventDefault();const pb=document.getElementById('pasteBox');pb.textContent='✅ 감지됨! 분석 중...';pb.className='paste-box ok';setTimeout(()=>{pb.textContent='⌨️ 캡처 후 아무데서나 Ctrl+V';pb.className='paste-box';},3000);processImage(imgFile);}
+
+document.addEventListener('paste', function(e){
+  if(document.getElementById('modal').classList.contains('open')) return;
+  const cd = e.clipboardData || e.originalEvent.clipboardData;
+  if(!cd) return;
+  let imgFile = null;
+  for(let i=0; i<cd.items.length; i++){
+    if(cd.items[i].type.startsWith('image/')){
+      imgFile = cd.items[i].getAsFile();
+      break;
+    }
+  }
+  if(imgFile){
+    e.preventDefault();
+    const pb = document.getElementById('pasteBox');
+    pb.textContent = '✅ 감지됨! 분석 중...';
+    pb.className = 'paste-box ok';
+    setTimeout(()=>{ pb.textContent='⌨️ 캡처 후 아무데서나 Ctrl+V'; pb.className='paste-box'; }, 3000);
+    processImage(imgFile);
+  }
 });
+
 init();
 </script>
 </body>
