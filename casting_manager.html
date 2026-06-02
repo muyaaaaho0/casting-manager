@@ -150,12 +150,16 @@ main{max-width:1100px;margin:0 auto;padding:24px 20px;}
     <h2 id="mTitle">배우 추가</h2>
     <div class="frow"><label>이름 *</label>
       <div style="display:flex;gap:8px;">
-        <input type="text" id="e-name" placeholder="배우 이름" oninput="clearAutoPhoto()" onblur="autoFillWiki()" />
-        <button type="button" onclick="searchPhoto()" class="btn btn-primary" style="white-space:nowrap;font-size:12px;padding:6px 12px;">🖼 사진 검색</button>
+        <input type="text" id="e-name" placeholder="배우 이름 입력 후 엔터" oninput="clearAutoPhoto()" onkeydown="if(event.key==='Enter'){event.preventDefault();autoFillWiki();}" onblur="autoFillWiki()" />
       </div>
     </div>
+    <div id="wikiStatus" style="display:none;margin-bottom:8px;font-size:12px;padding:6px 10px;background:var(--green-light);color:var(--green);border-radius:6px;"></div>
+    <div style="margin-bottom:12px;">
+      <button type="button" onclick="searchPhoto()" class="btn btn-outline" style="font-size:12px;padding:5px 14px;">🖼 사진 검색</button>
+      <span style="font-size:11px;color:var(--muted);margin-left:8px;">또는 파일 선택 / Ctrl+V</span>
+    </div>
     <div id="photoResults" style="display:none;margin-bottom:12px;">
-      <div style="font-size:11px;color:var(--muted);margin-bottom:6px;">사진 선택 (클릭하면 적용돼요)</div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:6px;">사진 클릭하면 적용돼요</div>
       <div id="photoGrid" style="display:flex;gap:6px;flex-wrap:wrap;align-items:flex-start;"></div>
     </div>
     <div class="fgrid">
@@ -307,11 +311,21 @@ function clearAutoPhoto(){
 // 이름 입력 후 자동으로 위키피디아 정보만 채움 (사진 제외)
 function autoFillWiki(){
   const name=document.getElementById('e-name').value.trim();
-  if(!name||editId)return; // 수정 모드일 때는 자동입력 안 함
+  if(!name||editId)return;
+  const status=document.getElementById('wikiStatus');
+  status.style.display='block';
+  status.textContent='🔍 위키피디아 검색 중...';
+  status.style.background='var(--accent-light)';
+  status.style.color='var(--accent)';
   fetch(`https://ko.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(name)}`)
     .then(r=>r.json())
     .then(data=>{
-      if(data.type==='disambiguation'||!data.extract)return;
+      if(data.type==='disambiguation'||!data.extract){
+        status.textContent='ℹ️ 위키피디아에 정보가 없어요. 직접 입력해주세요.';
+        status.style.background='var(--yellow-light)';
+        status.style.color='var(--yellow)';
+        return;
+      }
       const extract=data.extract||'';
       let filled=[];
       const birthMatch=extract.match(/(\d{4})년\s*\d+월\s*\d+일/);
@@ -325,9 +339,21 @@ function autoFillWiki(){
         const works=workMatches.map(w=>w.replace(/《|》/g,'')).slice(0,8).join(', ');
         document.getElementById('e-works').value=works;filled.push('출연작');
       }
-      if(filled.length>0)showToast('✅ 위키피디아: '+filled.join(', ')+' 자동입력!');
+      if(filled.length>0){
+        status.textContent='✅ '+filled.join(', ')+' 자동입력 완료! 확인 후 수정해주세요.';
+        status.style.background='var(--green-light)';
+        status.style.color='var(--green)';
+      } else {
+        status.textContent='ℹ️ 위키피디아에서 정보를 찾지 못했어요.';
+        status.style.background='var(--yellow-light)';
+        status.style.color='var(--yellow)';
+      }
     })
-    .catch(()=>{});
+    .catch(()=>{
+      status.textContent='ℹ️ 위키피디아 연결 실패. 직접 입력해주세요.';
+      status.style.background='var(--yellow-light)';
+      status.style.color='var(--yellow)';
+    });
 }
 
 // 사진만 검색해서 보여줌
@@ -434,6 +460,7 @@ function openAdd(prefill){
   document.getElementById('imgPreviewWrap').innerHTML='';
   document.getElementById('photoResults').style.display='none';
   document.getElementById('photoGrid').innerHTML='';
+  document.getElementById('wikiStatus').style.display='none';
   updateAgencyList();
   document.getElementById('modal').classList.add('open');
 }
