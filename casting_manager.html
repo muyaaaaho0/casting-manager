@@ -314,64 +314,73 @@ function autoFillWiki(){
   if(!name||editId)return;
   const status=document.getElementById('wikiStatus');
   status.style.display='block';
-  status.textContent='🔍 위키피디아 검색 중...';
+  status.textContent='🔍 검색 중...';
   status.style.background='var(--accent-light)';
   status.style.color='var(--accent)';
-  fetch(`https://ko.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(name)}`)
-    .then(r=>r.json())
-    .then(data=>{
-      if(data.type==='disambiguation'||!data.extract){
-        status.textContent='ℹ️ 위키피디아에 정보가 없어요. 직접 입력해주세요.';
-        status.style.background='var(--yellow-light)';
-        status.style.color='var(--yellow)';
-        return;
-      }
-      const extract=data.extract||'';
+
+  // 위키피디아 검색 - 배우 우선으로 여러 이름 시도
+  const namesToTry=[name, name+' (배우)', name+' (탤런트)'];
+  function tryWiki(names, idx){
+    if(idx>=names.length){
+      status.textContent='ℹ️ 위키피디아에 정보가 없어요. 직접 입력해주세요.';
+      status.style.background='var(--yellow-light)';status.style.color='var(--yellow)';
+      return;
+    }
+    fetch(`https://ko.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(names[idx])}&prop=revisions&rvprop=content&format=json&origin=*`)
+      .then(r=>r.json())
+      .then(data=>{
+        const pages=data.query.pages;
+        const page=pages[Object.keys(pages)[0]];
+        if(!page||page.missing){tryWiki(names,idx+1);return;}
+        const wikitext=(page.revisions&&page.revisions[0]['*'])||'';
+        parseAndFill(wikitext,status);
+      }).catch(()=>tryWiki(names,idx+1));
+  }
+  tryWiki(namesToTry,0);
+}
+
+function parseAndFill(wikitext,status){
+      {
       let filled=[];
 
-      // 출생년도 - 여러 패턴
-      const birthMatch=extract.match(/(\d{4})년/);
-      if(birthMatch&&!document.getElementById('e-birth').value){
-        const yr=parseInt(birthMatch[1]);
-        if(yr>=1940&&yr<=2010){document.getElementById('e-birth').value=yr;filled.push('출생년도');}
+      // 출생년도
+      const birthM=wikitext.match(/출생\s*[=|]\s*.*?(\d{4})년/)||wikitext.match(/(\d{4})년\s*\d+월\s*\d+일/);
+      if(birthM&&!document.getElementById('e-birth').value){
+        const yr=parseInt(birthM[1]);if(yr>=1940&&yr<=2010){document.getElementById('e-birth').value=yr;filled.push('출생년도');}
       }
 
-      // 키 - 여러 패턴
-      const heightMatch=extract.match(/(\d{3})\s*(?:cm|센티)/i);
-      if(heightMatch&&!document.getElementById('e-height').value){document.getElementById('e-height').value=heightMatch[1];filled.push('키');}
+      // 키
+      const heightM=wikitext.match(/신장\s*[=|]\s*(\d{3})/)||wikitext.match(/키\s*[=|:]\s*(\d{3})/)||wikitext.match(/(\d{3})\s*cm/);
+      if(heightM&&!document.getElementById('e-height').value){document.getElementById('e-height').value=heightM[1];filled.push('키');}
 
-      // 소속사 - 더 넓은 패턴
-      const agencyPatterns=[
-        /소속\s*([가-힣A-Za-z·\s]+(?:엔터테인먼트|엔터|매니지먼트|컴퍼니|크리에이티브|스튜디오|프로덕션|기획|에이전시))/,
-        /([가-힣A-Za-z·\s]{2,15}(?:엔터테인먼트|엔터|매니지먼트|컴퍼니|크리에이티브|스튜디오|프로덕션))/
-      ];
-      for(const pat of agencyPatterns){
-        const m=extract.match(pat);
-        if(m&&!document.getElementById('e-agency').value){document.getElementById('e-agency').value=m[1].trim();filled.push('소속사');break;}
+      // 소속사
+      const agencyM=wikitext.match(/소속사\s*[=|]\s*([^
+|]+)/)||wikitext.match(/소속\s*[=|]\s*([^
+|]+)/);
+      if(agencyM&&!document.getElementById('e-agency').value){
+        const ag=agencyM[1].replace(/\[\[|\]\]|\{\{[^}]*\}\}/g,'').replace(/\|[^\]]+/g,'').trim();
+        if(ag.length>1&&ag.length<30){document.getElementById('e-agency').value=ag;filled.push('소속사');}
       }
 
-      // 출연작 - 《》 또는 〈〉 패턴
-      const workMatches=extract.match(/[《〈]([^》〉]+)[》〉]/g);
+      // 출연작
+      const workMatches=wikitext.match(/\[\[([^\]|]+)(?:\|[^\]]+)?\]\]/g);
       if(workMatches&&!document.getElementById('e-works').value){
-        const works=workMatches.map(w=>w.replace(/[《〈》〉]/g,'')).filter(w=>w.length>1).slice(0,10).join(', ');
+        const stopWords=['대한민국','서울','배우','가수','모델','남자','여자','위키','분류'];
+        const works=workMatches
+          .map(w=>w.replace(/\[\[|\]\]/g,'').split('|')[0].trim())
+          .filter(w=>w.length>1&&w.length<20&&!stopWords.some(s=>w.includes(s)))
+          .slice(0,10).join(', ');
         if(works){document.getElementById('e-works').value=works;filled.push('출연작');}
       }
 
       if(filled.length>0){
-        status.textContent='✅ '+filled.join(', ')+' 자동입력 완료! 확인 후 수정해주세요.';
-        status.style.background='var(--green-light)';
-        status.style.color='var(--green)';
+        status.textContent='✅ '+filled.join(', ')+' 자동입력! 확인 후 수정해주세요.';
+        status.style.background='var(--green-light)';status.style.color='var(--green)';
       } else {
-        status.textContent='ℹ️ 위키피디아에서 추가 정보를 찾지 못했어요. 직접 입력해주세요.';
-        status.style.background='var(--yellow-light)';
-        status.style.color='var(--yellow)';
+        status.textContent='ℹ️ 위키피디아에서 추가 정보를 찾지 못했어요.';
+        status.style.background='var(--yellow-light)';status.style.color='var(--yellow)';
       }
-    })
-    .catch(()=>{
-      status.textContent='ℹ️ 위키피디아 연결 실패. 직접 입력해주세요.';
-      status.style.background='var(--yellow-light)';
-      status.style.color='var(--yellow)';
-    });
+      }
 }
 
 // 사진만 검색해서 보여줌
