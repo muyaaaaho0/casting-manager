@@ -328,23 +328,41 @@ function autoFillWiki(){
       }
       const extract=data.extract||'';
       let filled=[];
-      const birthMatch=extract.match(/(\d{4})년\s*\d+월\s*\d+일/);
-      if(birthMatch&&!document.getElementById('e-birth').value){document.getElementById('e-birth').value=birthMatch[1];filled.push('출생년도');}
-      const heightMatch=extract.match(/(\d{3})\s*cm/);
-      if(heightMatch&&!document.getElementById('e-height').value){document.getElementById('e-height').value=heightMatch[1];filled.push('키');}
-      const agencyMatch=extract.match(/([가-힣A-Za-z]+(?:엔터테인먼트|엔터|매니지먼트|컴퍼니|크리에이티브|스튜디오|프로덕션|기획))/);
-      if(agencyMatch&&!document.getElementById('e-agency').value){document.getElementById('e-agency').value=agencyMatch[1].trim();filled.push('소속사');}
-      const workMatches=extract.match(/《([^》]+)》/g);
-      if(workMatches&&!document.getElementById('e-works').value){
-        const works=workMatches.map(w=>w.replace(/《|》/g,'')).slice(0,8).join(', ');
-        document.getElementById('e-works').value=works;filled.push('출연작');
+
+      // 출생년도 - 여러 패턴
+      const birthMatch=extract.match(/(\d{4})년/);
+      if(birthMatch&&!document.getElementById('e-birth').value){
+        const yr=parseInt(birthMatch[1]);
+        if(yr>=1940&&yr<=2010){document.getElementById('e-birth').value=yr;filled.push('출생년도');}
       }
+
+      // 키 - 여러 패턴
+      const heightMatch=extract.match(/(\d{3})\s*(?:cm|센티)/i);
+      if(heightMatch&&!document.getElementById('e-height').value){document.getElementById('e-height').value=heightMatch[1];filled.push('키');}
+
+      // 소속사 - 더 넓은 패턴
+      const agencyPatterns=[
+        /소속\s*([가-힣A-Za-z·\s]+(?:엔터테인먼트|엔터|매니지먼트|컴퍼니|크리에이티브|스튜디오|프로덕션|기획|에이전시))/,
+        /([가-힣A-Za-z·\s]{2,15}(?:엔터테인먼트|엔터|매니지먼트|컴퍼니|크리에이티브|스튜디오|프로덕션))/
+      ];
+      for(const pat of agencyPatterns){
+        const m=extract.match(pat);
+        if(m&&!document.getElementById('e-agency').value){document.getElementById('e-agency').value=m[1].trim();filled.push('소속사');break;}
+      }
+
+      // 출연작 - 《》 또는 〈〉 패턴
+      const workMatches=extract.match(/[《〈]([^》〉]+)[》〉]/g);
+      if(workMatches&&!document.getElementById('e-works').value){
+        const works=workMatches.map(w=>w.replace(/[《〈》〉]/g,'')).filter(w=>w.length>1).slice(0,10).join(', ');
+        if(works){document.getElementById('e-works').value=works;filled.push('출연작');}
+      }
+
       if(filled.length>0){
         status.textContent='✅ '+filled.join(', ')+' 자동입력 완료! 확인 후 수정해주세요.';
         status.style.background='var(--green-light)';
         status.style.color='var(--green)';
       } else {
-        status.textContent='ℹ️ 위키피디아에서 정보를 찾지 못했어요.';
+        status.textContent='ℹ️ 위키피디아에서 추가 정보를 찾지 못했어요. 직접 입력해주세요.';
         status.style.background='var(--yellow-light)';
         status.style.color='var(--yellow)';
       }
