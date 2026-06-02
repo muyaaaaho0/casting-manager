@@ -309,16 +309,58 @@ function searchPhoto(){
   if(!name){showToast('이름을 먼저 입력해주세요');return;}
   const grid=document.getElementById('photoGrid');
   const results=document.getElementById('photoResults');
-  grid.innerHTML='<div style="font-size:12px;color:var(--muted);">검색 중...</div>';
+  grid.innerHTML='<div style="font-size:12px;color:var(--muted);">위키피디아 검색 중...</div>';
   results.style.display='block';
+
   fetch(`https://ko.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(name)}`)
     .then(r=>r.json())
     .then(data=>{
       grid.innerHTML='';
+
+      // 위키피디아 본문에서 정보 추출
+      const extract = data.extract || '';
+
+      // 출생년도 추출
+      const birthMatch = extract.match(/(\d{4})년\s*\d+월\s*\d+일/);
+      if(birthMatch && !document.getElementById('e-birth').value){
+        document.getElementById('e-birth').value = birthMatch[1];
+      }
+
+      // 키 추출
+      const heightMatch = extract.match(/(\d{3})\s*cm/);
+      if(heightMatch && !document.getElementById('e-height').value){
+        document.getElementById('e-height').value = heightMatch[1];
+      }
+
+      // 소속사 추출 (여러 패턴)
+      const agencyMatch = extract.match(/소속사[^
+]*?([가-힣A-Za-z\s]+(?:엔터테인먼트|엔터|기획사|소속|매니지먼트|컴퍼니|크리에이티브|스튜디오|에이전시|프로덕션)[가-힣A-Za-z\s]*)/);
+      if(agencyMatch && !document.getElementById('e-agency').value){
+        document.getElementById('e-agency').value = agencyMatch[1].trim();
+      }
+
+      // 출연작 추출 힌트 표시
+      if(extract && !document.getElementById('e-works').value){
+        // 드라마/영화 제목 패턴 추출
+        const workMatches = extract.match(/《([^》]+)》/g);
+        if(workMatches){
+          const works = workMatches.map(w=>w.replace(/《|》/g,'')).slice(0,8).join(', ');
+          document.getElementById('e-works').value = works;
+        }
+      }
+
+      // 사진 표시
       const imgs=[];
       if(data.thumbnail&&data.thumbnail.source)imgs.push(data.thumbnail.source);
       if(data.originalimage&&data.originalimage.source)imgs.push(data.originalimage.source);
+
       if(imgs.length>0){
+        // 정보 추출 알림
+        const infoDiv = document.createElement('div');
+        infoDiv.style.cssText='width:100%;margin-bottom:8px;font-size:12px;color:var(--green);';
+        infoDiv.textContent='✅ 위키피디아에서 정보를 가져왔어요! 확인 후 수정해주세요.';
+        grid.appendChild(infoDiv);
+
         imgs.forEach(url=>{
           const img=document.createElement('img');
           img.src=url;
