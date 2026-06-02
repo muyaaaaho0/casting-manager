@@ -167,7 +167,10 @@ main{max-width:1100px;margin:0 auto;padding:24px 20px;}
       </div>
     </div>
     <div class="frow"><label>키 (cm)</label><input type="number" id="e-height" placeholder="예: 189" /></div>
-    <div class="frow"><label>소속사</label><input type="text" id="e-agency" placeholder="예: 아메르 엔터테인먼트" /></div>
+    <div class="frow"><label>소속사</label>
+      <input type="text" id="e-agency" placeholder="예: 아메르 엔터테인먼트" list="agencyList" autocomplete="off" />
+      <datalist id="agencyList"></datalist>
+    </div>
     <div class="frow"><label>출연작품</label><textarea id="e-works" placeholder="드라마, 영화명 등..."></textarea></div>
     <div class="frow"><label>스케줄</label><input type="text" id="e-schedule" placeholder="예: ~2026년 12월까지 작품 있음" /></div>
     <div class="frow"><label>현황</label><textarea id="e-notes" placeholder="현재 상황, 특이사항..."></textarea></div>
@@ -263,6 +266,7 @@ function render(){
       </div>
       <div class="card-bottom">
         <div class="card-btns">
+          <button class="cbtn" onclick="copyOne(${a.id})" style="color:var(--green);border-color:#b0e0c0;">📋 시트복사</button>
           <button class="cbtn" onclick="openEdit(${a.id})">✏️ 수정</button>
           <button class="cbtn del" onclick="del(${a.id})">🗑</button>
         </div>
@@ -360,6 +364,32 @@ function showGoogleSearch(name,grid){
     <div style="margin-top:8px;font-size:11px;color:var(--muted);">구글에서 사진 찾은 후 → 오른쪽 클릭 → 복사 → 이 페이지에서 Ctrl+V</div>`;
 }
 
+function updateAgencyList(){
+  const datalist = document.getElementById('agencyList');
+  const agencies = [...new Set(actors.map(a=>a.agency).filter(Boolean))];
+  datalist.innerHTML = agencies.map(a=>`<option value="${a}">`).join('');
+}
+
+function copyOne(id){
+  const a = actors.find(x=>x.id===id);
+  if(!a) return;
+  const imgFormula = (a.img && !a.img.startsWith('data:')) ? `=IMAGE("${a.img}")` : '';
+  const rows = [
+    [imgFormula, '출생년도', a.birth||'', '신 체', a.height||'', '현 황', a.notes||''],
+    ['','','','','','',''],
+    ['','','','','','',''],
+    ['','','','','','',''],
+    ['','출연작품', a.works||'','','','',''],
+    ['','소 속 사', a.agency||'','','스케줄',a.schedule||'',''],
+    [a.name,'','','','','',''],
+    ['','','','','','',''],
+  ];
+  const tsv = rows.map(r=>r.join('\t')).join('\n');
+  navigator.clipboard.writeText(tsv).then(()=>showToast(`✓ ${a.name} 복사 완료!`)).catch(()=>{
+    const ta=document.createElement('textarea');ta.value=tsv;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);showToast(`✓ ${a.name} 복사 완료!`);
+  });
+}
+
 function openAdd(prefill){
   editId=null;pendingImg=null;
   document.getElementById('mTitle').textContent=(prefill&&Object.keys(prefill).length)?'AI가 추출한 정보 확인':'배우 추가';
@@ -374,6 +404,7 @@ function openAdd(prefill){
   document.getElementById('imgPreviewWrap').innerHTML='';
   document.getElementById('photoResults').style.display='none';
   document.getElementById('photoGrid').innerHTML='';
+  updateAgencyList();
   document.getElementById('modal').classList.add('open');
 }
 function openEdit(id){
@@ -389,6 +420,7 @@ function openEdit(id){
   document.getElementById('e-notes').value=a.notes||'';
   document.getElementById('imgPreviewWrap').innerHTML=a.img?`<img src="${a.img}" class="photo-preview" />`:'';
   document.getElementById('photoResults').style.display='none';
+  updateAgencyList();
   document.getElementById('modal').classList.add('open');
 }
 function closeModal(){document.getElementById('modal').classList.remove('open');pendingImg=null;editId=null;}
