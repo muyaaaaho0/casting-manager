@@ -175,7 +175,8 @@ main{max-width:1100px;margin:0 auto;padding:24px 20px;}
       <input type="text" id="e-agency" placeholder="예: 아메르 엔터테인먼트" list="agencyList" autocomplete="off" />
       <datalist id="agencyList"></datalist>
     </div>
-    <div class="frow"><label>출연작품</label><textarea id="e-works" placeholder="드라마, 영화명 등..."></textarea></div>
+    <div class="frow"><label>드라마</label><textarea id="e-dramas" placeholder="드라마 제목 (쉼표 구분)..." style="height:50px;"></textarea></div>
+    <div class="frow"><label>영화</label><textarea id="e-movies" placeholder="영화 제목 (쉼표 구분)..." style="height:50px;"></textarea></div>
     <div class="frow"><label>스케줄</label><input type="text" id="e-schedule" placeholder="예: ~2026년 12월까지 작품 있음" /></div>
     <div class="frow"><label>현황</label><textarea id="e-notes" placeholder="현재 상황, 특이사항..."></textarea></div>
     <div id="imgPreviewWrap"></div>
@@ -262,7 +263,8 @@ function render(){
             ${age?`<tr><td>나이</td><td>${age}</td></tr>`:''}
             ${a.height?`<tr><td>신체</td><td>${a.height}cm</td></tr>`:''}
             ${a.agency?`<tr><td>소속사</td><td>${a.agency}</td></tr>`:''}
-            ${a.works?`<tr><td>출연작</td><td>${a.works}</td></tr>`:''}
+            ${a.dramas?`<tr><td>드라마</td><td>${a.dramas}</td></tr>`:''}
+            ${a.movies?`<tr><td>영화</td><td>${a.movies}</td></tr>`:''}
             ${a.schedule?`<tr><td>스케줄</td><td style="color:var(--red)">${a.schedule}</td></tr>`:''}
             ${a.notes?`<tr><td>현황</td><td style="color:var(--muted)">${a.notes}</td></tr>`:''}
           </table>
@@ -362,15 +364,25 @@ function parseAndFill(wikitext,status){
         if(ag.length>1&&ag.length<30){document.getElementById('e-agency').value=ag;filled.push('소속사');}
       }
 
-      // 출연작
+      // 드라마/영화 구분해서 추출
       const workMatches=wikitext.match(/\[\[([^\]|]+)(?:\|[^\]]+)?\]\]/g);
-      if(workMatches&&!document.getElementById('e-works').value){
-        const stopWords=['대한민국','서울','배우','가수','모델','남자','여자','위키','분류'];
-        const works=workMatches
+      if(workMatches){
+        const stopWords=['대한민국','서울','배우','가수','모델','남자','여자','위키','분류','학교','대학'];
+        const allWorks=workMatches
           .map(w=>w.replace(/\[\[|\]\]/g,'').split('|')[0].trim())
-          .filter(w=>w.length>1&&w.length<20&&!stopWords.some(s=>w.includes(s)))
-          .slice(0,10).join(', ');
-        if(works){document.getElementById('e-works').value=works;filled.push('출연작');}
+          .filter(w=>w.length>1&&w.length<20&&!stopWords.some(s=>w.includes(s)));
+        // 드라마 키워드
+        const dramaKeywords=['드라마','시즌','회','편','방송','KBS','MBC','SBS','tvN','OCN','JTBC','넷플릭스'];
+        const dramas=[], movies=[];
+        allWorks.forEach(w=>{
+          if(dramaKeywords.some(k=>wikitext.includes(w+']]')&&wikitext.indexOf(k)<wikitext.indexOf(w+']]')+200)) dramas.push(w);
+          else movies.push(w);
+        });
+        if(!document.getElementById('e-dramas').value&&dramas.length){document.getElementById('e-dramas').value=dramas.slice(0,8).join(', ');filled.push('드라마');}
+        if(!document.getElementById('e-movies').value&&movies.length){document.getElementById('e-movies').value=movies.slice(0,8).join(', ');filled.push('영화');}
+        if(!document.getElementById('e-dramas').value&&!document.getElementById('e-movies').value&&allWorks.length){
+          document.getElementById('e-dramas').value=allWorks.slice(0,8).join(', ');filled.push('출연작');
+        }
       }
 
       if(filled.length>0){
@@ -481,7 +493,9 @@ function openAdd(prefill){
   document.getElementById('e-birth').value=prefill?.birth||'';
   document.getElementById('e-height').value=prefill?.height||'';
   document.getElementById('e-agency').value=prefill?.agency||'';
-  document.getElementById('e-works').value=prefill?.works||'';
+  // 위키피디아에서 가져온 works를 드라마/영화 구분 없이 드라마에 임시 저장
+  document.getElementById('e-dramas').value=prefill?.dramas||prefill?.works||'';
+  document.getElementById('e-movies').value=prefill?.movies||'';
   document.getElementById('e-schedule').value='';
   document.getElementById('e-notes').value='';
   document.getElementById('imgPreviewWrap').innerHTML='';
@@ -499,7 +513,8 @@ function openEdit(id){
   document.getElementById('e-birth').value=a.birth||'';
   document.getElementById('e-height').value=a.height||'';
   document.getElementById('e-agency').value=a.agency;
-  document.getElementById('e-works').value=a.works||'';
+  document.getElementById('e-dramas').value=a.dramas||a.works||'';
+  document.getElementById('e-movies').value=a.movies||'';
   document.getElementById('e-schedule').value=a.schedule||'';
   document.getElementById('e-notes').value=a.notes||'';
   document.getElementById('imgPreviewWrap').innerHTML=a.img?`<img src="${a.img}" class="photo-preview" />`:'';
@@ -511,7 +526,7 @@ function closeModal(){document.getElementById('modal').classList.remove('open');
 function saveActor(){
   const name=document.getElementById('e-name').value.trim();
   if(!name){document.getElementById('e-name').focus();return;}
-  const d={name,gender:document.getElementById('e-gender').value,birth:parseInt(document.getElementById('e-birth').value)||null,height:parseInt(document.getElementById('e-height').value)||null,agency:document.getElementById('e-agency').value.trim(),works:document.getElementById('e-works').value.trim(),schedule:document.getElementById('e-schedule').value.trim(),notes:document.getElementById('e-notes').value.trim(),img:pendingImg};
+  const d={name,gender:document.getElementById('e-gender').value,birth:parseInt(document.getElementById('e-birth').value)||null,height:parseInt(document.getElementById('e-height').value)||null,agency:document.getElementById('e-agency').value.trim(),dramas:document.getElementById('e-dramas').value.trim(),movies:document.getElementById('e-movies').value.trim(),schedule:document.getElementById('e-schedule').value.trim(),notes:document.getElementById('e-notes').value.trim(),img:pendingImg};
   if(editId){const i=actors.findIndex(a=>a.id===editId);actors[i]={...actors[i],...d};}
   else{actors.unshift({id:nextId++,...d});}
   save();closeModal();render();showToast('✓ 저장됐어요');
@@ -527,7 +542,7 @@ function copyToSheets(){
     rows.push(['','','','','','','']);
     rows.push(['','','','','','','']);
     rows.push(['','','','','','','']);
-    rows.push(['','출연작품', a.works||'','','','','']);
+    rows.push(['','드라마', a.dramas||'','영화',a.movies||'','','']);
     rows.push(['','소 속 사', a.agency||'','','스케줄',a.schedule||'','']);
     rows.push([a.name,'','','','','','']);
     rows.push(['','','','','','','']);
